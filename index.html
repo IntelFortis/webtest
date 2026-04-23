@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>静态测试页</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --brand: #0f766e;
+      --brand-2: #0d9488;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(160deg, #eef2ff 0%, var(--bg) 40%, #ecfeff 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    input[type="text"] {
+      flex: 1 1 260px;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+    input[type="text"]:focus {
+      border-color: var(--brand-2);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      background: var(--brand);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: var(--brand-2); }
+    button.secondary { background: #475569; }
+    button.secondary:hover { background: #334155; }
+    button.danger { background: var(--danger); }
+    button.danger:hover { background: #991b1b; }
+
+    .kv {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    #log {
+      margin-top: 10px;
+      height: 180px;
+      overflow: auto;
+      background: #0f172a;
+      color: #d1fae5;
+      border-radius: 10px;
+      padding: 10px;
+      font-family: Consolas, Menlo, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+      padding: 6px 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>静态测试页面</h1>
+      <p>不依赖构建工具，直接打开即可使用。你可以在这里快速测试 DOM 事件、本地存储、网络请求等。</p>
+    </section>
+
+    <section class="card">
+      <h2>交互区</h2>
+      <div class="row">
+        <input id="textInput" type="text" placeholder="输入任意内容..." />
+        <button id="btnEcho">显示输入</button>
+        <button id="btnCount" class="secondary">点击计数</button>
+      </div>
+      <div class="kv">当前计数：<strong id="countValue">0</strong></div>
+      <div class="kv">最新输入：<strong id="echoValue">（暂无）</strong></div>
+    </section>
+
+    <section class="card">
+      <h2>本地存储</h2>
+      <div class="row">
+        <button id="btnSave">保存输入到 localStorage</button>
+        <button id="btnLoad" class="secondary">读取 localStorage</button>
+        <button id="btnClear" class="danger">清除 localStorage</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>网络请求测试</h2>
+      <p>点击后请求公开接口并打印返回（需要网络）。</p>
+      <div class="row">
+        <button id="btnFetch">发起 fetch 请求</button>
+      </div>
+      <div class="kv">请求状态：<strong id="fetchStatus">未请求</strong></div>
+    </section>
+
+    <section class="card">
+      <h2>日志</h2>
+      <div id="log">[init] 页面已加载</div>
+    </section>
+
+    <div class="footer">Static Test Page · index.html</div>
+  </main>
+
+  <script>
+    (function () {
+      var count = 0;
+      var input = document.getElementById("textInput");
+      var echoValue = document.getElementById("echoValue");
+      var countValue = document.getElementById("countValue");
+      var fetchStatus = document.getElementById("fetchStatus");
+      var logEl = document.getElementById("log");
+
+      function now() {
+        return new Date().toLocaleTimeString();
+      }
+
+      function log(msg) {
+        logEl.textContent += "\n[" + now() + "] " + msg;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      document.getElementById("btnEcho").addEventListener("click", function () {
+        var val = input.value.trim();
+        echoValue.textContent = val || "（空）";
+        log("echo: " + (val || "(empty)"));
+      });
+
+      document.getElementById("btnCount").addEventListener("click", function () {
+        count += 1;
+        countValue.textContent = String(count);
+        log("count -> " + count);
+      });
+
+      document.getElementById("btnSave").addEventListener("click", function () {
+        localStorage.setItem("static-test-input", input.value);
+        log("saved to localStorage: static-test-input");
+      });
+
+      document.getElementById("btnLoad").addEventListener("click", function () {
+        var val = localStorage.getItem("static-test-input");
+        input.value = val || "";
+        echoValue.textContent = val || "（空）";
+        log("loaded from localStorage: " + (val || "(empty)"));
+      });
+
+      document.getElementById("btnClear").addEventListener("click", function () {
+        localStorage.removeItem("static-test-input");
+        log("removed localStorage key: static-test-input");
+      });
+
+      document.getElementById("btnFetch").addEventListener("click", function () {
+        fetchStatus.textContent = "请求中...";
+        log("fetch start: jsonplaceholder");
+        fetch("https://jsonplaceholder.typicode.com/todos/1")
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            fetchStatus.textContent = "成功";
+            log("fetch success: " + JSON.stringify(data));
+          })
+          .catch(function (err) {
+            fetchStatus.textContent = "失败";
+            log("fetch error: " + err.message);
+          });
+      });
+    })();
+  </script>
+</body>
+</html>
